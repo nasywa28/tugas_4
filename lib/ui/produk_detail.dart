@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tugas_4/bloc/produk_bloc.dart';
 import 'package:tugas_4/model/produk.dart';
 import 'package:tugas_4/ui/produk_form.dart';
+import 'package:tugas_4/ui/produk_page.dart';
+import 'package:tugas_4/widget/warning_dialog.dart';
 
-// ignore: must_be_immutable
 class ProdukDetail extends StatefulWidget {
   Produk? produk;
 
@@ -17,7 +19,7 @@ class _ProdukDetailState extends State<ProdukDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Produk (Nasywa)'),
+        title: const Text('Detail Produk : Nasywa'),
       ),
       body: Center(
         child: Column(
@@ -34,7 +36,7 @@ class _ProdukDetailState extends State<ProdukDetail> {
               "Harga : Rp. ${widget.produk!.hargaProduk.toString()}",
               style: const TextStyle(fontSize: 18.0),
             ),
-            _tombolHapusEdit(),
+            _tombolHapusEdit()
           ],
         ),
       ),
@@ -45,7 +47,6 @@ class _ProdukDetailState extends State<ProdukDetail> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Tombol Edit
         OutlinedButton(
           child: const Text("EDIT"),
           onPressed: () {
@@ -59,7 +60,6 @@ class _ProdukDetailState extends State<ProdukDetail> {
             );
           },
         ),
-        // Tombol Hapus
         OutlinedButton(
           child: const Text("DELETE"),
           onPressed: () => confirmHapus(),
@@ -72,12 +72,29 @@ class _ProdukDetailState extends State<ProdukDetail> {
     AlertDialog alertDialog = AlertDialog(
       content: const Text("Yakin ingin menghapus data ini?"),
       actions: [
-        // Tombol Hapus
+        // Tombol hapus
         OutlinedButton(
           child: const Text("Ya"),
-          onPressed: () {},
+          onPressed: () {
+            ProdukBloc.deleteProduk(widget.produk!.id).then((value) {
+              if (value) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const ProdukPage(),
+                ));
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) => const WarningDialog(
+                    description: "Gagal menghapus data. Silakan coba lagi.",
+                  ),
+                );
+              }
+            }).catchError((error) {});
+
+            Navigator.pop(context);
+          },
         ),
-        // Tombol Batal
+        // Tombol batal
         OutlinedButton(
           child: const Text("Batal"),
           onPressed: () => Navigator.pop(context),
